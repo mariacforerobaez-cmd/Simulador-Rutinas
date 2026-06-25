@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planificador de Mantenimiento IR - Modelos Seleccionados</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1050px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        h1 {
+            color: #d22630;
+            text-align: center;
+            margin-bottom: 5px;
+            font-size: 1.8rem;
+        }
+        .subtitle {
+            text-align: center;
+            color: #555;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+        .grid-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        @media (max-width: 768px) {
+            .grid-form { grid-template-columns: 1fr; }
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+        select, input {
+            padding: 11px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 15px;
+            background-color: #fff;
+        }
+        button {
+            grid-column: 1 / -1;
+            padding: 14px;
+            background-color: #d22630;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #b11f27;
+        }
+        .results-box {
+            margin-top: 30px;
+            display: none;
+        }
+        .results-header {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 5px solid #d22630;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 14px;
+        }
+        th {
+            background-color: #f1f3f5;
+            color: #495057;
+            font-weight: 600;
+        }
+        tr:hover { background-color: #fdfdfd; }
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .consumible { background-color: #f8d7da; color: #842029; }
+        .no-consumible { background-color: #fff3cd; color: #664d03; }
+        .ccn-text {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            color: #212529;
+            font-size: 15px;
+        }
+        .status-alert {
+            color: #d22630;
+            font-weight: bold;
+        }
+        .status-ok {
+            color: #157347;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Herramienta de Diagnóstico de Mantenimiento IR</h1>
+    <div class="subtitle">Análisis de Consumibles, Kits y Frecuencias para Modelos Específicos</div>
+    
+    <div class="grid-form">
+        <div class="form-group">
+            <label for="modelo">Selecciona el Modelo del Compresor:</label>
+            <select id="modelo">
+                <option value="">-- Elige un modelo de la lista --</option>
+                <!-- Modelos solicitados organizados por familias -->
+                <optgroup label="Serie UP6 (Legacy / Trabajo Pesado)">
+                    <option value="UP6-5">UP6-5</option>
+                    <option value="UP6-10">UP6-10</option>
+                    <option value="UP6-15">UP6-15</option>
+                </optgroup>
+                <optgroup label="Next-Gen R-Series / RS-Series (Pequeña y Mediana Potencia)">
+                    <option value="RS15i">RS15i</option>
+                    <option value="RS18i">RS18i</option>
+                    <option value="RS22i">RS22i</option>
+                    <option value="Rsa22i">Rsa22i</option>
+                    <option value="RS37i">RS37i</option>
+                    <option value="RS37ie">RS37ie (Alta Eficiencia)</option>
+                    <option value="RS45i">RS45i</option>
+                </optgroup>
+                <optgroup label="R-Series / RS-Series (Gran Potencia)">
+                    <option value="RS75i">RS75i</option>
+                    <option value="RS75-TAS">RS75-TAS (Con Secador Integrado)</option>
+                    <option value="R90i">R90i</option>
+                    <option value="EP125">EP125 (Classic SSR)</option>
+                </optgroup>
+                <optgroup label="E-Series (Modelos Electrónicos Premium)">
+                    <option value="E160i">E160i</option>
+                    <option value="E160n">E160n</option>
+                    <option value="E200i">E200i</option>
+                </optgroup>
+                <optgroup label="Tecnologías Exentas de Aceite (Oil-Free)">
+                    <option value="Nirvana Oil Free">Nirvana Oil Free</option>
+                    <option value="Scroll Ingersoll Rand">Scroll Ingersoll Rand</option>
+                </optgroup>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="horas">Horas de Operación Actuales del Equipo:</label>
+            <input type="number" id="horas" placeholder="Ej: 3800" min="0">
+        </div>
+
+        <button onclick="calcularMantenimiento()">Analizar Ciclo de Mantenimiento</button>
+    </div>
+
+    <div id="resultsBox" class="results-box">
+        <div class="results-header">
+            <div>
+                <h3 style="margin:0; font-size: 1.3rem;" id="resModelo">Modelo: -</h3>
+                <span id="resHoras" style="font-size: 0.95rem; color: #555;">Horas: -</span>
+            </div>
+            <div style="text-align: right; font-size: 0.85rem; color: #666;">
+                * Rangos preventivos calculados de forma automática.
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Componente / Kit de Servicio</th>
+                    <th>CCN / Número de Parte</th>
+                    <th>Clasificación</th>
+                    <th>Frecuencia Estándar</th>
+                    <th>Estado de Operación / Acción</th>
+                </tr>
+            </thead>
+            <tbody id="tablaResultados">
+                <!-- Inyección dinámica con JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+// Base de datos de mantenimiento adaptada para los modelos solicitados
+const baseDatosCompresores = {
+    // ---- SERIE UP6 ----
+    "UP6-5": [
+        { item: "Elemento Filtro de Aire", ccn: "39708466", tipo: "Consumible", frec: 2000 },
+        { item: "Filtro de Aceite Sifón", ccn: "39911631", tipo: "Consumible", frec: 2000 },
+        { item: "Cartucho Separador Aire/Aceite", ccn: "39831888", tipo: "Consumible", frec: 4000 },
+        { item: "Lubricante Ultra Coolant (5L)", ccn: "38459582", tipo: "Consumible", frec: 8000 },
+        { item: "Kit de Válvula de Admisión Mínima", ccn: "54672354", tipo: "No Consumible", frec: 8000 },
+        { item: "Correa de Transmisión Dentada", ccn: "39845321", tipo: "No Consumible", frec: 4000 }
+    ],
+    "UP6-10": [
+        { item: "Elemento Filtro de Aire", ccn: "39708466", tipo: "Consumible", frec: 2000 },
+        { item: "Filtro de Aceite", ccn: "39911631", tipo: "Consumible", frec: 2000 },
+        { item: "Elemento Separador", ccn: "39831888", tipo: "Consumible", frec: 4000 },
+        { item: "Lubricante Ultra Coolant (5L)", ccn: "38459582", tipo: "Consumible", frec: 8000 },
+        { item: "Kit de Válvulas Combinadas", ccn: "23451123", tipo: "No Consumible", frec: 8000 }
+    ],
+    "UP6-15": [
+        { item: "Elemento Filtro de Aire", ccn: "54672654", tipo: "Consumible", frec: 2000 },
+        { item: "Filtro de Aceite", ccn: "39911631", tipo: "Consumible", frec: 2000 },
+        { item: "Elemento Separador", ccn: "54749248", tipo: "Consumible", frec: 4000 },
+        { item: "Lubricante Ultra Coolant (20L)", ccn: "38459590", tipo: "Consumible", frec: 8000 },
+        { item: "Kit de Termostato", ccn: "23009485", tipo: "No Consumible", frec: 8000 }
+    ],
+
+    // ---- NEXT GEN R-SERIES / RS-SERIES MEDIANOS ----
+    "RS15i": [
+        { item: "Filtro de Aire Premium", ccn: "23843762", tipo: "Consumible", frec: 2000 },
+        { item: "Filtro de Aceite Sellado", ccn: "23843820", tipo: "Consumible", frec: 2000 },
+        { item: "Kit Separador de Cartucho", ccn: "23843697", tipo: "Consumible", frec: 8000 },
+        { item: "Lubricante Ultra Coolant", ccn: "38459590", tipo: "Consumible", frec: 8000 },
+        { item: "Kit Sellos Válvula Admisión", ccn: "23910452", tipo: "No Consumible", frec: 8000 }
+    ],
+    "RS18i": [
+        { item: "Filtro de Aire", ccn: "23843762", tipo: "Consumible", frec: 2000 },
+        { item: "Filtro de Aceite", ccn: "23843820", tipo: "Consumible", frec: 2000 },
+        { item: "Elemento Separador Integrado", ccn: "23843697", tipo: "Consumible", frec: 8000 },
+        { item: "Lubricante Ultra Coolant", ccn: "38459590", tipo: "Consumible", frec: 8000 },
+        { item: "Kit de Válvula Multipropósito", ccn: "23958814", tipo: "No Consumible", frec: 8000 }
+    ],
+    "RS22i": [
+        { item: "Filtro de Aire Rediseñado", ccn: "48651234", tipo: "Consumible", frec: 4000 },
+        { item: "Filtro de Aceite Flujo Alto", ccn: "48655678", tipo: "Consumible", frec: 4000 },
+        { item: "Separador de Aire/Aceite", ccn: "24244512", tipo: "Consumible", frec: 8000 },
+        { item: "Lubricante Ultra Coolant", ccn: "38459590", tipo: "Consumible", frec: 8000 },
+        { item: "Kit Mantenimiento Solenoide de Carga", ccn: "24115684", tipo: "No Consumible", frec: 8000 }
+    ],
+    "Rsa22i": [
+        { item: "Filtro de Aire", ccn: "48651234", tipo: "Consumible", frec: 4000 },
+        { item: "Filtro de Aceite", ccn: "48655678", tipo: "Consumible", frec: 4000 },
+        { item: "Separador de Etapa Única", ccn: "24244512", tipo: "Consumible", frec: 8000 },
+        { item: "Lubricante Ultra Coolant", ccn: "38459590", tipo: "Consumible", frec: 8000 },
+        { item: "Acople Flexible de Tracción", ccn: "47551029", tipo: "No Consumible", frec: 16000 }
+    ],
+    "RS37i": [
+        { item: "Filtro de Aire Servicio Pesado", ccn: "48651234", tipo: "Consumible", frec: 4000 },
+        { item: "Filtro de Aceite Dual", ccn: "48655678", tipo: "Consumible", frec: 4000 },
+        { item: "Elemento Separador Primario", ccn: "24244512", tipo: "Consumible", frec: 8000 },
+        { item: "Lubricante Ultra Coolant", ccn: "38459590", tipo: "Consumible", frec: 8000 },
+        { item: "Kit de Válvula de Presión Mínima (MPV)", ccn: "37952210", tipo: "No Consumible", frec: 8000 }
+    ],
+    "RS37ie": [
+        { item: "Filtro de Aire Ultra-Baja Restricción", ccn: "48651235", tipo: "Consumible", frec: 4000 },
+        { item: "Filtro de Aceite de Microfibra", ccn: "48655679", tipo: "Consumible", frec: 4000 },
+        { item: "Separador de Plisado Avanzado", ccn: "24244515", tipo: "Consumible", frec: 8000 },
+        { item: "Lubricante Premium Ultra EL (Larga vida)", ccn: "38459592", tipo: "Consumible", frec: 16000 },
+        { item: "Kit de Sello Mecánico del Airend", ccn: "47612984", tipo: "No Consumible", frec: 16000 }
+    ],
+    "RS45i": [
+        { item: "Filtro de Aire", ccn: "48651234", tipo: "Consumible", frec: 4000 },
+        { item: "Filtro de Aceite", ccn: "48655678", tipo: "Consumible", frec: 4000 },
+        { item: "Elemento Separador Flujo Expandido", ccn: "24244512", tipo: "Consumible", frec: 8000 },
+        { item: "Lubricante Ultra Coolant", ccn: "38459590", tipo: "Consumible", frec: 8000 },
+        { item: "Kit Línea de Purga y Mirilla", ccn: "23951104", tipo: "No Consumible", frec: 8000 }
+    ],
+
+    // ---- COMPRESORES DE GRAN POTENCIA ----
+    "RS75i": [
+        { item: "Filtro de Aire de Doble Etapa", ccn: "54749214", tipo: "Consumible", frec: 4000 },
+        { item: "Filtro de Aceite de Alta Capacidad", ccn: "54672311", tipo: "Consumible", frec: 4000 },
+        { item: "Elemento Separador Cilíndrico Maestro", ccn: "54731102", tipo: "Consumible", frec: 8000 },
+        { item: "Lubricante Ultra Coolant (Industrial)", ccn: "38459590", tipo: "Consumible", frec: 8000 },
+        { item: "Kit Empaquetadura Válvula Admisión Grande", ccn: "39102485", tipo: "No Consumible", frec: 8000 }
+    ],
+    "RS75-TAS": [
+        { item: "Filtro de Aire de Panel / Cartucho", ccn: "54749214", tipo: "Consumible", frec: 4000 },
+        { item: "Filtro de Aceite Principal", ccn: "54672311", tipo: "Consumible", frec: 4000 },
+        { item: "Filtro Separador Interno", ccn: "54731102", tipo: "Consumible", frec: 8000 },
+        { item: "Filtro de Línea Secador - Partículas (TAS)", ccn: "85565541", tipo: "Consumible", frec: 4000 },
+        { item: "Filtro de Línea Secador - Coalescente (TAS)", ccn: "85565558", tipo: "Consumible", frec: 4000 },
+        { item: "Kit Válvula Purga Secadora integrada", ccn: "23485122", tipo: "No Consumible", frec: 8000 }
+    ],
+    "R90i": [
+        { item: "Filtro de Entrada de Aire", ccn: "54749214", tipo: "Consumible", frec: 4000 },
+        { item: "Filtros de Aceite en Paralelo (Requiere 2)", ccn: "54672311", tipo: "Consumible", frec: 4000 },
+        { item: "Separador de Aire y Aceite Heavy Duty", ccn: "54731102", tipo: "Consumible", frec: 8000 },
+        { item: "Kit de Amortiguación del Acople Mecánico", ccn: "39485120", tipo: "No Consumible", frec: 16000 }
+    ],
+    "EP125": [
+        { item: "Filtro de Aire Classic SSR", ccn: "39588470", tipo: "Consumible", frec: 2000 },
+        { item: "Filtro de Aceite SSR", ccn: "39588488", tipo: "Consumible", frec: 2000 },
+        { item: "Elemento Separador Atornillable Clásico", ccn: "39824115", tipo: "Consumible", frec: 4000 },
+        { item: "Fluido de Trabajo Ultra Coolant", ccn: "38459590", tipo: "Consumible", frec: 8000 },
+        { item: "Kit de Reconstrucción Válvula de Admisión", ccn: "39811324", tipo: "No Consumible", frec: 8000 }
+    ],
+
+    // ---- SERIE E (E-SERIES) ----
+    "E160i": [
+        { item: "Filtro de Aire E-Series Avanzado", ccn: "24911022", tipo: "Consumible", frec: 4000 },
+        { item: "Filtro de Aceite de Ultra-Filtración", ccn: "24911055", tipo: "Consumible", frec: 4000 },
+        { item: "Módulo Separador Optimizado de Dos Etapas", ccn: "24922011", tipo: "Consumible", frec: 8000 },
+        { item: "Lubricante de Máxima Durabilidad Ultra EL", ccn: "38459592", tipo: "Consumible", frec: 16000 },
+        { item: "Kit de Rodamientos / Sensores Inteligentes", ccn: "47712039", tipo: "No Consumible", frec: 16000 }
+    ],
+    "E160n": [
+        { item: "Filtro de Aire E-Series", ccn: "24911022", tipo: "Consumible", frec: 4000 },
+        { item: "Filtro de Aceite", ccn: "24911055", tipo: "Consumible", frec: 4000 },
+        { item: "Separador de Aire/Aceite", ccn: "24922011", tipo: "Consumible", frec: 8000 },
+        { item: "Kit Sensores de Presión Transductor", ccn: "23911048", tipo: "No Consumible", frec: 8000 }
+    ],
+    "E200i": [
+        { item: "Filtro de Aire de Flujo Masivo", ccn: "24911024", tipo: "Consumible", frec: 4000 },
+        { item: "Filtro de Aceite Combinado (X2)", ccn: "24911055", tipo: "Consumible", frec: 4000 },
+        { item: "Separador de Aceites Duales", ccn: "24922015", tipo: "Consumible", frec: 8000 },
+        { item: "Kit Mantenimiento Válvula de Mariposa", ccn: "47715690", tipo: "No Consumible", frec: 16000 }
+    ],
+
+    // ---- EXENTOS DE ACEITE (OIL FREE) ----
+    "Nirvana Oil Free": [
+        { item: "Filtro de Entrada de Aire Libre de Aceite", ccn: "39215442", tipo: "Consumible", frec: 4000 },
+        { item: "Filtro de Aceite de Engranajes de Sincronización", ccn: "39215459", tipo: "Consumible", frec: 4000 },
+        { item: "Lubricante Ultra-Inmune Ultra Chem (Módulos OF)", ccn: "38459600", tipo: "Consumible", frec: 8000 },
+        { item: "Kit de Sellos de Carbón del Airend (Etapa 1)", ccn: "39304112", tipo: "No Consumible", frec: 16000 },
+        { item: "Kit de Sello de Aire / Laberinto (Etapa 2)", ccn: "39304120", tipo: "No Consumible", frec: 16000 }
+    ],
+    "Scroll Ingersoll Rand": [
+        { item: "Elemento Filtrante de Aire Scroll", ccn: "85569412", tipo: "Consumible", frec: 2000 },
+        { item: "Correas de Transmisión del Módulo Scroll", ccn: "85569522", tipo: "No Consumible", frec: 5000 },
+        { item: "Kit de Mantenimiento de Punta de Scroll (Tip Seal)", ccn: "92104512", tipo: "No Consumible", frec: 10000 },
+        { item: "Kit de Engrase de Rodamientos Especiales Scroll", ccn: "92104884", tipo: "Consumible", frec: 5000 }
+    ]
+};
+
+function calcularMantenimiento() {
+    const mod = document.getElementById("modelo").value;
+    const horasInput = document.getElementById("horas").value;
+    const horas = parseInt(horasInput);
+    
+    if (!mod || isNaN(horas) || horasInput === "") {
+        alert("Por favor selecciona un modelo de la lista e ingresa las horas actuales de operación.");
+        return;
+    }
+    
+    // Configurar cabeceras de respuesta
+    document.getElementById("resModelo").textContent = "Modelo Analizado: " + mod;
+    document.getElementById("resHoras").innerHTML = `Tiempo de operación actual: <strong>${horas.toLocaleString()} Horas</strong>`;
+    
+    const listaComponentes = baseDatosCompresores[mod];
+    const tabla = document.getElementById("tablaResultados");
+    tabla.innerHTML = "";
+    
+    listaComponentes.forEach(comp => {
+        const fila = document.createElement("tr");
+        
+        // Ventana de cálculo predictiva (Margen de 400 horas antes o después del ciclo múltiplo)
+        const proximoMultiplo = Math.ceil(horas / comp.frec) * comp.frec;
+        const horasFaltantes = proximoMultiplo - horas;
+        
+        let estadoAccion = "";
+        
+        // Alerta si está cerca de vencer, o si está exactamente en el ciclo/vencido en la primera iteración
+        if (horasFaltantes <= 400 || (horas >= comp.frec && (horas % comp.frec <= 400))) {
+            estadoAccion = `<span class="status-alert">⚠️ REQUERIDO AHORA</span><br><small style="color:#555">Ciclo crítico actual o vencido. Ejecutar cambio en parada técnica.</small>`;
+        } else {
+            estadoAccion = `<span class="status-ok">✔ Vigente</span><br><small style="color:#666">Próximo cambio requerido a las <strong>${proximoMultiplo.toLocaleString()} hrs</strong> (Faltan ${horasFaltantes.toLocaleString()} hrs)</small>`;
+        }
+        
+        const badgeClass = comp.tipo === "Consumible" ? "consumible" : "no-consumible";
+        
+        fila.innerHTML = `
+            <td><strong>${comp.item}</strong></td>
+            <td class="ccn-text">${comp.ccn}</td>
+            <td><span class="badge ${badgeClass}">${comp.tipo}</span></td>
+            <td>Cada <strong>${comp.frec.toLocaleString()} hrs</strong></td>
+            <td>${estadoAccion}</td>
+        `;
+        
+        tabla.appendChild(fila);
+    });
+    
+    document.getElementById("resultsBox").style.display = "block";
+}
+</script>
+
+</body>
+</html>
